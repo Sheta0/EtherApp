@@ -1,0 +1,84 @@
+﻿@model List<Post>
+
+<main id="site__main" class="2xl:ml-[--w-side] xl:ml-[--w-side-sm] p-2.5 h-100vh mt-[--m-top] bg-[#11001c]">
+    <div class="lg:flex 2xl:gap-16 gap-12 max-w-[1065px] mx-auto" id="js-oversized">
+        <div class="mx-auto flex-1">
+            @* Stories *@
+            <div class="mb-8">
+                <h3 class="font-extrabold text-2xl text-black hidden">Stories</h3>
+                <div class="relative" tabindex="-1" uk-slider="auto play: true; finite: true" uk-lightbox="">
+                    <div class="py-5 uk-slider-container">
+                        <ul class="uk-slider-items w-[calc(100%+14px)]" uk-scrollspy="target: > li; cls:uk-animation-scale-up; delay:20; repeat:true">
+                            <li class="md: pr-3" uk-scrollspy-class="uk-animation-fade">
+                                <div class="md:w-16 md:h-16 w-12 h-12 rounded-full relative border-2 border-dashed grid place-items-center bg-slate-200 border-slate-300 shrink-0"
+                                     uk-toggle="target:#create-story">
+                                    <ion-icon name="camera" class="text-2xl"></ion-icon>
+                                </div>
+                            </li>
+                            <li class="md:pr-3 pr-2 hover:scale-[1.15]  hover:-rotate-2 duration-300">
+                                <a href="images/stories/story1.jpg">
+                                    <div class="md:w-16 md:h-16 w-12 h-12 relative md:border-4 border-2 border-[#3a015c] rounded-full overflow-hidden">
+                                        <img src="images/avatar/profile.jpg" />
+                                    </div>
+                                </a>
+                            </li>
+                            <li class="md:pr-3 pr-2 hover:scale-[1.15]  hover:-rotate-2 duration-300">
+                                <a href="images/stories/story2.jpg">
+                                    <div class="md:w-16 md:h-16 w-12 h-12 relative md:border-4 border-2 border-[#3a015c] rounded-full overflow-hidden">
+                                        <img src="images/avatar/profile2.jpg" />
+                                    </div>
+                                </a>
+                            </li>
+                            <li class="md:pr-3 pr-2">
+                                <div class="md:w-16 md:h-16 w-12 h-12 bg-[#3a015c] rounded-full animate-pulse">
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="md:max-w-[580px] mx-auto flex-1 xl:space-y-6 space-y-3">
+                <div class="bg-[#3a015c] rounded-xl md:p-4 p-2 space-y-4 text-sm font-medium">
+                    <div class="flex items-center md:gap-3 gap-1">
+                        <div class="flex-1 bg-[#11001c] hover:bg-opacity-80 transition-all rounded-lg cursor-pointer"
+                             uk-toggle="target: #create-status">
+                            <div class="py-2.5 text-center text-white">What do you have in mind?</div>
+                        </div>
+                        <div class="flex items-center justify-center hover:bg-opacity-80 cursor-pointer p-1 px-1.5 rounded-xl transition-all bg-[#11001c] "
+                             uk-toggle="target: #create-status">
+                            <ion-icon name="image" class="text-2xl text-white"></ion-icon>
+                        </div>
+                    </div>
+                </div>
+
+                @if(Model.Count == 0) 
+                {
+                <div class="bg-[#11001c] rounded-xl shadow-sm md:p-4 p-2 space-y-4 text-sm text-white font-medium border1 w-[580px]">
+                    Currently, there are no posts avilable. Would you like to create the first one?
+                    </div>
+                } else
+                {
+                    @foreach (var post in Model)
+                    {
+                        <partial name="Home/_Post" model="post" />
+                    }
+                }
+
+                
+
+            </div>
+        </div>
+        <div class="w-96">
+            <div class="lg:space-y-4 lg:pb-8 max-lg:grid sm:grid-cols-2 max-lg:gap-6">
+                <div class="box p-5 px-6 !bg-[#11001c]">
+                    <partial name="Sidebar/_SuggestedFriends" />
+                </div>
+                <div class="box p-5 px-6 !bg-[#11001c] border1">
+                    <partial name="Sidebar/_TrendsForYou" />
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+<partial name="../Shared/Modals/_CreateStory.cshtml" />
+<partial name="../Shared/Modals/_CreateStatus.cshtml"  model="new PostVM()"/>

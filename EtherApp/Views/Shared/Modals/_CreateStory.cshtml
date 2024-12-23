@@ -1,0 +1,28 @@
+﻿<div class="hidden lg:p-20" id="create-story" uk-modal="">
+    <div class="bg-[#11001c] uk-modal-dialog relative overflow-hidden mx-auto p-8 shadow-2xl rounded-xl md:w-[520px] w-full">
+        <div class="text-center py-4 border-b border-[#1c0d28] -mx-8">
+            <h2 class="text-2xl font-semibold !text-white">Create Your Story</h2>
+            <button type="button" class="button__ico absolute top-1 right-0 p-2 uk-modal-close hover:bg-[#1c0d28] rounded-full">
+                <ion-icon name="close-outline" class="text-2xl text-white"></ion-icon>
+            </button>
+        </div>
+        <div class="space-y-6 mt-6">
+            <form>
+                <div class="w-full h-72 relative border border-[#1c0d28] rounded-lg overflow-hidden bg-[url('../images/ad_pattern.png')] bg-repeat">
+                    <label class="flex flex-col justify-center items-center absolute inset-0 z-10 w-full cursor-pointer bg-gradient-to-t from-[#35007a]/50 to-transparent">
+                        <input id="createStatusUrl" name="uploadedContent" type="file" accept="image/png, image/jpeg" class="hidden" />
+                        <ion-icon name="image" class="text-4xl text-white"></ion-icon>
+                        <span class="!text-white mt-3 font-medium">Upload Your Image</span>
+                    </label>
+                </div>
+                <div class="flex justify-between items-center mt-4">
+                    <div class="flex items-start gap-3">
+                        <ion-icon name="time-outline" class="text-3xl text-white rounded-full bg-[#35007a]/90 p-2"></ion-icon>
+                        <p class="text-sm text-[#35007a] font-medium">Your Story will be available <br> for <span class="font-bold text-white">24 Hours</span></p>
+                    </div>
+                    <button type="submit" class="bg-[#35007a] hover:bg-[#3a015c] text-white px-6 py-2 rounded-lg transition-all">Create</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

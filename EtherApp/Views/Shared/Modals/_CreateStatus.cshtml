@@ -1,0 +1,59 @@
+﻿@model PostVM;
+
+<div class="hidden lg:p-20" id="create-status" uk-modal="">
+    <div class="uk-modal-dialog relative overflow-hidden mx-auto bg-[#11001c] shadow-xl rounded-lg md:w-[520px] w-full">
+        <div class="text-center py-4 border-b border-[#1c0d28]">
+            <h2 class="text-2xl font-semibold !text-white">Create Status</h2>
+            <button type="button" class="absolute top-0 right-0 m-3 uk-modal-close hover:bg-[#1c0d28] rounded-full p-2 transition-all">
+                <ion-icon name="close-outline" class="text-2xl text-white"></ion-icon>
+            </button>
+        </div>
+        <form asp-controller="Home" asp-action="CreatePost" method="post" enctype="multipart/form-data" class="p-6">
+            @Html.AntiForgeryToken()
+            <div class="space-y-5">
+                <textarea class="w-full text-white placeholder:text-white bg-[#3a015c] border-transparent focus:border-transparent
+                                  focus:ring-transparent font-normal text-xl rounded-lg p-3"
+                          name="content"
+                          asp-for="@Model.Content"
+                          rows="4"
+                          placeholder="What do you have in mind?"></textarea>
+            </div>
+            <div class="flex flex-col items-center gap-2 mt-4 text-sm font-medium">
+                <input id="imageUpload" type="file" class="hidden" name="image" accept="image/png, image/jpeg" />
+                <div id="imagePreviewContainer" class="hidden w-full">
+                    <img id="imagePreview" src="#" class="w-full h-auto rounded-lg" alt="Image Preview" />
+                </div>
+                <button type="button" id="imageUploadBtn" class="flex items-center gap-2 bg-[#35007a] text-white rounded-full py-2 px-4 hover:bg-[#3a015c] border-2 border-[#3a015c] transition-all">
+                    <ion-icon name="image" class="text-xl"></ion-icon> Upload Image
+                </button>
+            </div>
+            <div class="mt-6 flex justify-between items-center">
+                <button type="submit" class="bg-[#3a015c] hover:bg-[#1c0d28] text-white py-2 px-8 rounded-lg text-sm font-medium transition-all">Create</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+
+<script>
+    document.getElementById('imageUploadBtn').addEventListener('click', () => {
+        document.getElementById('imageUpload').click();
+    });
+
+    document.getElementById('imageUpload').addEventListener('change', (event) => {
+        const file = event.target.files[0];
+        const imagePreviewContainer = document.getElementById('imagePreviewContainer');
+        const imagePreview = document.getElementById('imagePreview');
+
+        if (file) {
+            const reader = new FileReader();
+            imagePreviewContainer.classList.remove('hidden');
+            reader.onload = (e) => {
+                imagePreview.src = e.target.result;
+            }
+            reader.readAsDataURL(file);
+        } else {
+            imagePreviewContainer.classList.add('hidden');
+        }
+    });
+</script>
