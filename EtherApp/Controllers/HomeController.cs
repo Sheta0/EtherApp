@@ -24,6 +24,7 @@ namespace EtherApp.Controllers
             var allPosts = await _context.Posts
                 .Include(n => n.User)
                 .Include(n => n.Like)
+                .Include(n => n.Comment).ThenInclude(n => n.User)
                 .OrderByDescending(n => n.DateCreated)
                 .ToListAsync();
             return View(allPosts);
@@ -118,6 +119,20 @@ namespace EtherApp.Controllers
             };
             await _context.Comments.AddAsync(newComment);
             await _context.SaveChangesAsync();
+
+            return RedirectToAction("Index");
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> RemovePostComment(RemoveCommentVM removeCommentVM)
+        {
+            var commentDb = await _context.Comments.FirstOrDefaultAsync(c => c.Id == removeCommentVM.CommentId);
+
+            if(commentDb != null)
+            {
+                _context.Comments.Remove(commentDb);
+                await _context.SaveChangesAsync();
+            }
 
             return RedirectToAction("Index");
         }

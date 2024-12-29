@@ -30,7 +30,7 @@
         <div class="flex-1">
             <a>
                 <h4 class="!text-white">@Model.User.FullName</h4>
-                <div class="text-sm text-[#3a015c]" title="@Model.DateCreated.ToString("MM/dd/yyyy hh:mm tt")">@displayTime</div>
+                <div class="text-sm text-[#af0fbf]" title="@Model.DateCreated.ToString("MM/dd/yyyy hh:mm tt")">@displayTime</div>
             </a>
         </div>
         <div class="-mr-1">
@@ -82,7 +82,7 @@
 
     @* Icons *@
     <div class="sm:p-4 p-2.5 flex items-center gap-4 text-xs font-semibold">
-        
+
         <div class="flex items-center gap-2">
             <form asp-controller="Home" asp-action="TogglePostLike">
                 <input type="hidden" name="postId" value="@Model.Id" />
@@ -91,7 +91,7 @@
                     <ion-icon class="text-lg text-white" name="@(Model.Like.Any(n => n.UserId == 4) ? "heart" : "heart-outline")"></ion-icon>
                 </button>
             </form>
-            
+
             <a href="#" class="text-white">@Model.Like.Count</a>
         </div>
 
@@ -99,7 +99,7 @@
             <a class="p-1 hover:bg-opacity-80 cursor-pointer transition-all ease-in-out duration-200 flex items-center justify-center rounded-full bg-[#3a015c]">
                 <ion-icon class="text-lg text-white" name="chatbubble-ellipses-outline"></ion-icon>
             </a>
-            <a href="#" class="text-white">5</a>
+            <a href="#" class="text-white">@Model.Comment.Count</a>
         </div>
 
         <div class="ml-auto">
@@ -110,12 +110,63 @@
 
     </div>
     @* Add comment section *@
-    <div class="sm:p-4 p-2.5 flex items-center border-t border-gray-100 gap-1">
-        <img src="/images/avatar/profile.jpg" class="w-8 h-8 rounded-full mr-2" />
-        <div class="flex-1 relative overflow-hidden h-10">
-            <textarea placeholder="Add comment...." rows="1"
-                      class="!text-white w-full resize-none border-transparent rounded-full !bg-transparent px-4 py-2 focus:!border-1 focus:!border-white focus:ring-transparent"></textarea>
-        </div>
-        <button class="text-sm rounded-full py-1.5 px-3.5 bg-[#3a015c] hover:bg-opacity-80 transition-all ease-in-out duration-200 text-white">Comment</button>
+
+    <div class="p-2.5 border-t border-gray-100 font-normal space-y-3 relative">
+        @foreach(var comment in Model.Comment.OrderByDescending(n => n.DateCreated).Take(3)) {
+            TimeSpan commentTimeSpanSincePosted = DateTime.Now.Subtract(comment.DateCreated);
+            string commentDisplayTime = commentTimeSpanSincePosted switch
+            {
+                var t when t.TotalDays >= 1 => $"{(int)t.TotalDays}d ago",
+                var t when t.TotalHours >= 1 => $"{(int)t.TotalHours}h ago",
+                var t when t.TotalMinutes >= 1 => $"{(int)t.TotalMinutes}m ago",
+                _ => "Just Now"
+            };
+
+            <div class="flex items-start gap-3 relative">
+                <a>
+                    <img src="/images/avatar/profile.jpg" class="w-8 h-8 rounded-full mr-2" />
+                </a>
+                <div class="flex-1">
+                    <div class=" flex justify-content-between">
+                        <a class="text-white font-medium inline-block flex-grow">
+                            @comment.User.FullName
+                        </a>
+                        <small class="text-[#af0fbf]" >@commentDisplayTime</small>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <p class="mt-0.5 text-[#dab1da]">
+                            @comment.Content
+                        </p>
+                        <form asp-controller="Home" asp-action="RemovePostComment">
+                            <input type="hidden" name="commentId" value="@comment.Id" />
+                            <button type="submit" class="text-red-500 text-xs ml-2" title="Remove post comment">
+                                <ion-icon name="trash-outline"></ion-icon>
+                            </button>
+                        </form>
+                    </div>
+                    
+                </div>
+            </div>
+        }
+        @if (Model.Comment.Count >= 3) {
+            <div class="p-1.5">
+                <a>Show all comments</a>
+            </div>
+        }
     </div>
+        
+
+    <div class="sm:p-4 p-2.5 flex items-center border-t border-gray-100 gap-1">
+        <form asp-controller="Home" asp-action="AddPostComment" class="w-full flex items-center gap-2">
+        <img src="/images/avatar/profile.jpg" class="w-8 h-8 rounded-full mr-2" />
+    
+            <input type="hidden" name="postId" value="@Model.Id" />
+            <div class="flex-1 relative overflow-hidden h-10">
+                <textarea name="content" placeholder="Add comment...." rows="1"
+                          class="!text-white w-full resize-none border-transparent rounded-full !bg-transparent px-4 py-2 focus:!border-1 focus:!border-white focus:ring-transparent"></textarea>
+            </div>
+            <button type = "submit" class="text-sm rounded-full py-1.5 px-3.5 bg-[#3a015c] hover:bg-opacity-80 transition-all ease-in-out duration-200 text-white">Comment</button>
+        </form>
+    </div>
+    
 </div>
