@@ -4,13 +4,13 @@
             <nav id="side">
                 <ul>
                     <li>
-                        <a class="group">
+                        <a class="group" asp-controller="Home" asp-action="Index">
                             <img src="~/images/icons/home.png" alt="Feed" class="w-6" />
-                            <span class="text-white group-hover:text-black"> Feed </span>
+                            <span class="!text-white group-hover:!text-black"> Feed </span>
                         </a>
                     </li>
                     <li>
-                        <a class="group">
+                        <a class="group" asp-controller="Favorites" asp-action="Index">
                             <img src="~/images/icons/page.png" alt="Favorites" class="w-6" />
                             <span class="text-white group-hover:text-black"> Favorites </span>
                         </a>
@@ -28,9 +28,9 @@
                 <div class="px-3 pb-2 text-sm text-white font-medium">Pages</div>
                 <ul class="mt-2 -space-y-2">
                     <li>
-                        <a class="group">
+                        <a class="group" asp-controller="Settings" asp-action="Index">
                             <ion-icon class="text-white group-hover:text-black" name="settings-outline"></ion-icon>
-                            <span class="text-white group-hover:text-black">Settings</span>
+                            <span class="text-white group-hover:text-black"> Settings </span>
                         </a>
                     </li>
                 </ul>

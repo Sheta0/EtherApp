@@ -1,4 +1,4 @@
-﻿namespace EtherApp.ViewModels
+﻿namespace EtherApp.ViewModels.Home
 {
     public class PostCommentVM
     {

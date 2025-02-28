@@ -1,4 +1,6 @@
-﻿<div class="hidden lg:p-20" id="create-story" uk-modal="">
+﻿@model StoryVM;
+
+<div class="hidden lg:p-20" id="create-story" uk-modal="">
     <div class="bg-[#11001c] uk-modal-dialog relative overflow-hidden mx-auto p-8 shadow-2xl rounded-xl md:w-[520px] w-full">
         <div class="text-center py-4 border-b border-[#1c0d28] -mx-8">
             <h2 class="text-2xl font-semibold !text-white">Create Your Story</h2>
@@ -7,13 +9,14 @@
             </button>
         </div>
         <div class="space-y-6 mt-6">
-            <form>
+            <form asp-controller="Stories" asp-action="CreateStory" enctype="multipart/form-data">
                 <div class="w-full h-72 relative border border-[#1c0d28] rounded-lg overflow-hidden bg-[url('../images/ad_pattern.png')] bg-repeat">
                     <label class="flex flex-col justify-center items-center absolute inset-0 z-10 w-full cursor-pointer bg-gradient-to-t from-[#35007a]/50 to-transparent">
-                        <input id="createStatusUrl" name="uploadedContent" type="file" accept="image/png, image/jpeg" class="hidden" />
-                        <ion-icon name="image" class="text-4xl text-white"></ion-icon>
-                        <span class="!text-white mt-3 font-medium">Upload Your Image</span>
+                        <input id="storyUpload" name="Image" type="file" accept="image/png, image/jpeg" hidden />
+                        <ion-icon id="storyUploadIcon" name="image" class="text-4xl text-white"></ion-icon>
+                        <span id="storyUploadBtn" class="!text-white mt-3 font-medium">Upload Your Image</span>
                     </label>
+                    <img id="storyPreview" />
                 </div>
                 <div class="flex justify-between items-center mt-4">
                     <div class="flex items-start gap-3">
@@ -26,3 +29,29 @@
         </div>
     </div>
 </div>
+
+<script>
+    const storyUploadBtn = document.getElementById('storyUploadBtn');
+    const storyUploadIcon = document.getElementById('storyUploadIcon');
+    storyUploadBtn.addEventListener('click', () => {
+        event.preventDefault();
+        document.getElementById('storyUpload').click();
+    });
+
+    document.getElementById('storyUpload').addEventListener('change', (event) => {
+        const file = event.target.files[0];
+        const storyPreview = document.getElementById('storyPreview');
+
+        if (file) {
+            const reader = new FileReader();
+            storyUploadBtn.classList.add('hidden');
+            storyUploadIcon.classList.add('hidden');
+            reader.onload = (e) => {
+                storyPreview.src = e.target.result;
+            }
+            reader.readAsDataURL(file);
+        } else {
+            storyPreview.src = '';
+        }
+    });
+</script>

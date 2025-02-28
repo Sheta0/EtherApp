@@ -3,20 +3,25 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - EtherApp</title>
-    <link href="images/favicon.png" rel="icon" type="image/png"/>
+    <title>@ViewData["Title"]EtherApp</title>
+    <link href="images/favicon1.png" rel="icon" type="image/png"/>
     <link rel="stylesheet" href="~/css/style.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/tailwind.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/EtherApp.styles.css" asp-append-version="true" />
+    <link href="~/css/uikit.min.css" rel="stylesheet" />
     <link href="/css/output.css" rel="stylesheet">
 
 </head>
 <body>
     <div id="wrapper">
-        @* Topbar *@
-        <partial name="Navigation/_TopBar.cshtml"/>
-        @* SideBar *@
-        <partial name="Navigation/_SideBar.cshtml" />
+        @if (User.Identity.IsAuthenticated)
+        {
+            @* Topbar *@
+            <partial name="Navigation/_TopBar.cshtml" />
+            @* SideBar *@
+            <partial name="Navigation/_SideBar.cshtml" />
+        }
+
         @RenderBody()
     </div>
 
@@ -26,7 +31,8 @@
 
     <script src="~/js/simplebar.js" asp-append-version="true"></script>
     <script src="~/js/script.js" asp-append-version="true"></script>
-    <script src="~/js/uikit.min.js" asp-append-version="true"></script>
+    <script src="~/js/uikit.min.js" asp-append-version="true"></script> 
+
 
     <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
     <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>

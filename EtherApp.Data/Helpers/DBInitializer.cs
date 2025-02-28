@@ -1,4 +1,6 @@
-﻿using EtherApp.Data.Models;
+﻿using EtherApp.Data.Helpers.Constants;
+using EtherApp.Data.Models;
+using Microsoft.AspNetCore.Identity;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,6 +11,59 @@ namespace EtherApp.Data.Helpers
 {
     public static class DBInitializer
     {
+        public static async Task SeedUsersAndRolesAsync(UserManager<User> userManager, RoleManager<IdentityRole<int>> roleManager)
+        {
+            // Roles
+            if (!roleManager.Roles.Any())
+            {
+                foreach (var role in AppRoles.AllRoles)
+                {
+                    if (!await roleManager.RoleExistsAsync(role))
+                    {
+                        await roleManager.CreateAsync(new IdentityRole<int>(role));
+                    }
+                }
+
+            }
+
+            // Users with roles
+            if (!userManager.Users.Any(n => !string.IsNullOrEmpty(n.Email)))
+            {
+                var userPassword = "P@ssw0rd";
+                var user = new User()
+                {
+                    UserName = "sheta0.9",
+                    Email = "theimpossible000@gmail.com",
+                    FullName = "Ahmed Sheta",
+                    ProfilePictureUrl = "~/images/avatar/profile.jpg",
+                    EmailConfirmed = true
+                };
+
+                var userResult = await userManager.CreateAsync(user, userPassword);
+
+                if (userResult.Succeeded)
+                {
+                    await userManager.AddToRoleAsync(user, AppRoles.User);
+                }
+
+
+                var Admin = new User()
+                {
+                    UserName = "admin.admin",
+                    Email = "ahmedsheta834@gmail.com",
+                    FullName = "Sheta Admin",
+                    ProfilePictureUrl = "~/images/avatar/profile.jpg",
+                    EmailConfirmed = true
+                };
+
+                var adminResult = await userManager.CreateAsync(Admin, userPassword);
+
+                if (adminResult.Succeeded)
+                {
+                    await userManager.AddToRoleAsync(Admin, AppRoles.Admin);
+                }
+            }
+        }
         public static async Task SeedAsync(AppDBContext appDBContext)
         {
             if (!appDBContext.Users.Any() && !appDBContext.Posts.Any())

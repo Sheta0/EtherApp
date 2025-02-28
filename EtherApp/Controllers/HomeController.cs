@@ -1,105 +1,98 @@
-using EtherApp.Data;
+using EtherApp.Controllers.Base;
+using EtherApp.Data.Helpers.Enums;
 using EtherApp.Data.Models;
-using EtherApp.ViewModels;
+using EtherApp.Data.Services;
 using EtherApp.ViewModels.Home;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using System.Diagnostics;
 
 namespace EtherApp.Controllers
 {
-    public class HomeController : Controller
+    [Authorize]
+    public class HomeController : BaseController
     {
         private readonly ILogger<HomeController> _logger;
-        private readonly AppDBContext _context;
+        private readonly IPostsService _postsService;
+        private readonly IHashtagsService _hashtagsService;
+        private readonly IFilesService _filesService;
 
-        public HomeController(ILogger<HomeController> logger, AppDBContext context)
+        public HomeController(ILogger<HomeController> logger, IPostsService postsService, IHashtagsService hashtagsService, IFilesService filesService)
         {
             _logger = logger;
-            _context = context;
+            _postsService = postsService;
+            _hashtagsService = hashtagsService;
+            _filesService = filesService;
         }
 
         public async Task<IActionResult> Index()
         {
-            var allPosts = await _context.Posts
-                .Include(n => n.User)
-                .Include(n => n.Like)
-                .Include(n => n.Comment).ThenInclude(n => n.User)
-                .OrderByDescending(n => n.DateCreated)
-                .ToListAsync();
+            var loggedInUser = GetUserId();
+            if(loggedInUser is null) return RedirectToLogin();
+            var allPosts = await _postsService.GetAllPostsAsync(loggedInUser.Value);
             return View(allPosts);
+        }
+
+        public async Task<IActionResult> PostDetails(int postId)
+        {
+            var post = await _postsService.GetPostByIdAsync(postId);
+            return View(post);
         }
 
         [HttpPost]
         public async Task<IActionResult> CreatePost(PostVM post)
         {
-            //Get the logged in user
-            int loggedInUser = 4;
 
-            //Create a new post
+            var loggedInUser = GetUserId();
+            if (loggedInUser is null) return RedirectToLogin();
+
+            var imageUploadPath = await _filesService.UploadImageAsync(post.Image, ImageFileType.PostImage);
+
+            // Create a new post
             var newPost = new Post
             {
                 Content = post.Content,
                 DateCreated = DateTime.Now,
                 DateUpdated = DateTime.Now,
-                ImageUrl = "",
+                ImageUrl = imageUploadPath,
                 NrOfReports = 0,
-                UserId = loggedInUser
+                UserId = loggedInUser.Value
             };
 
-            //post image
-            if (post.Image != null && post.Image.Length > 0)
-            {
-                string rootFolderPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot");
-                if (post.Image.ContentType.Contains("image"))
-                {
-                    string rootFolderPathImages = Path.Combine(rootFolderPath, "images");
-                    Directory.CreateDirectory(rootFolderPathImages);
+            await _postsService.CreatePostAsync(newPost);
+            await _hashtagsService.ProcessHashtagsForNewPostAsync(post.Content, loggedInUser.Value);
 
-                    string fileName = Guid.NewGuid().ToString() + Path.GetExtension(post.Image.FileName);
-                    string filePath = Path.Combine(rootFolderPathImages, fileName);
-
-                    using (var stream = new FileStream(filePath, FileMode.Create))
-                        await post.Image.CopyToAsync(stream);
-
-                    //Set the URL to the newPost object
-                    newPost.ImageUrl = "/images/" + fileName;
-                }
-            }
-
-            //Add the post to the database
-            await _context.Posts.AddAsync(newPost);
-            await _context.SaveChangesAsync();
-
-            //Redirect to the index page
             return RedirectToAction("Index");
         }
 
         [HttpPost]
         public async Task<IActionResult> TogglePostLike(PostLikeVM postLikeVM)
         {
-            int loggedInUserId = 4;
+            var loggedInUser = GetUserId();
+            if (loggedInUser is null) return RedirectToLogin();
 
-            //check if user liked the post
-            var like = await _context.Likes
-                .Where(l => l.PostId == postLikeVM.PostId && l.UserId == loggedInUserId)
-                .FirstOrDefaultAsync();
+            await _postsService.TogglePostLikeAsync(postLikeVM.PostId, loggedInUser.Value);
 
-            if (like != null)
-            {
-                _context.Likes.Remove(like);
-                await _context.SaveChangesAsync();
-            }
-            else
-            {
-                var newLike = new Like()
-                {
-                    PostId = postLikeVM.PostId,
-                    UserId = loggedInUserId
-                };
-                await _context.Likes.AddAsync(newLike);
-                await _context.SaveChangesAsync();
-            }
+            return RedirectToAction("Index");
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> TogglePostFavorite(PostFavoriteVM postFavoriteVM)
+        {
+            var loggedInUser = GetUserId();
+            if (loggedInUser is null) return RedirectToLogin();
+
+            await _postsService.TogglePostFavoriteAsync(postFavoriteVM.PostId, loggedInUser.Value);
+
+            return RedirectToAction("Index");
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> TogglePostVisibility(PostVisibilityVM postVisibilityVM)
+        {
+            var loggedInUser = GetUserId();
+            if (loggedInUser is null) return RedirectToLogin();
+
+            await _postsService.TogglePostVisibilityAsync(postVisibilityVM.PostId, loggedInUser.Value);
 
             return RedirectToAction("Index");
         }
@@ -107,18 +100,30 @@ namespace EtherApp.Controllers
         [HttpPost]
         public async Task<IActionResult> AddPostComment(PostCommentVM postCommentVM)
         {
-            int loggedInUserId = 4;
-            // Create a post object
+            var loggedInUser = GetUserId();
+            if (loggedInUser is null) return RedirectToLogin();
+
             var newComment = new Comment()
             {
-                UserId = loggedInUserId,
+                UserId = loggedInUser.Value,
                 PostId = postCommentVM.PostId,
                 Content = postCommentVM.Content,
                 DateCreated = DateTime.Now,
                 DateUpdated = DateTime.Now,
             };
-            await _context.Comments.AddAsync(newComment);
-            await _context.SaveChangesAsync();
+            
+            await _postsService.AddPostCommontAsync(newComment);
+
+            return RedirectToAction("Index");
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> AddPostReport(PostReportVM postReportVM)
+        {
+            var loggedInUser = GetUserId();
+            if (loggedInUser is null) return RedirectToLogin();
+
+            await _postsService.ReportPostAsync(postReportVM.PostId, loggedInUser.Value);
 
             return RedirectToAction("Index");
         }
@@ -126,15 +131,21 @@ namespace EtherApp.Controllers
         [HttpPost]
         public async Task<IActionResult> RemovePostComment(RemoveCommentVM removeCommentVM)
         {
-            var commentDb = await _context.Comments.FirstOrDefaultAsync(c => c.Id == removeCommentVM.CommentId);
-
-            if(commentDb != null)
-            {
-                _context.Comments.Remove(commentDb);
-                await _context.SaveChangesAsync();
-            }
+            await _postsService.DeletePostCommentAsync(removeCommentVM.CommentId);
 
             return RedirectToAction("Index");
         }
+
+        [HttpPost]
+        public async Task<IActionResult> PostDelete(PostDeleteVM postDeleteVM)
+        {
+
+            var postRemoved = await _postsService.DeletePostAsync(postDeleteVM.PostId);
+            await _hashtagsService.ProcessHashtagsForRemovedPostAsync(postRemoved.Content, postRemoved.UserId);
+
+
+            return RedirectToAction("Index");
+        }
+
     }
 }
