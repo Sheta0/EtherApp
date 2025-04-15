@@ -2,6 +2,7 @@
 using EtherApp.Data.Models;
 using EtherApp.ViewModels.Authentication;
 using EtherApp.ViewModels.Settings;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -38,7 +39,7 @@ namespace EtherApp.Controllers
             }
 
             var existingUserClaims = await _userManager.GetClaimsAsync(existingUser);
-            if(!existingUserClaims.Any(C => C.Type == CustomClaim.FullName))
+            if (!existingUserClaims.Any(C => C.Type == CustomClaim.FullName))
             {
                 await _userManager.AddClaimAsync(existingUser, new Claim(CustomClaim.FullName, existingUser.FullName));
             }
@@ -51,7 +52,7 @@ namespace EtherApp.Controllers
 
             ModelState.AddModelError(string.Empty, "Invalid Login Attempt");
             return View(loginVM);
-        } 
+        }
         #endregion
 
         #region Register
@@ -114,11 +115,11 @@ namespace EtherApp.Controllers
         [HttpPost]
         public async Task<IActionResult> UpdatePassword(UpdatePasswordVM updatePasswordVM)
         {
-            if(updatePasswordVM.NewPassword != updatePasswordVM.ConfirmPassword)
+            if (updatePasswordVM.NewPassword != updatePasswordVM.ConfirmPassword)
             {
                 TempData["PasswordError"] = "Passwords do not match";
                 TempData["ActiveTab"] = "Password";
-                
+
                 return RedirectToAction("Index", "Settings");
             }
 
@@ -168,5 +169,44 @@ namespace EtherApp.Controllers
             return RedirectToAction("Index", "Settings");
         }
 
+
+        public IActionResult ExternalLogin(string provider)
+        {
+            var redirectUrl = Url.Action("ExternalLoginCallback", "Authentication");
+            var properties = _signInManager.ConfigureExternalAuthenticationProperties(provider, redirectUrl);
+            return Challenge(properties, provider);
+        }
+
+        
+        public async Task<IActionResult> ExternalLoginCallback()
+        {
+            var info = await HttpContext.AuthenticateAsync(IdentityConstants.ExternalScheme);
+            if (info == null)
+                return RedirectToAction("Login");
+
+            var email = info.Principal.FindFirstValue(ClaimTypes.Email);
+            var user = await _userManager.FindByEmailAsync(email);
+
+            if (user == null)
+            {
+                var newUser = new User()
+                {
+                    UserName = email,
+                    Email = email,
+                    FullName = info.Principal.FindFirstValue(ClaimTypes.Name),
+                    EmailConfirmed = true
+                };
+                var result = await _userManager.CreateAsync(newUser);
+                if (result.Succeeded)
+                {
+                    await _userManager.AddToRoleAsync(newUser, AppRoles.User);
+                    await _userManager.AddClaimAsync(newUser, new Claim(CustomClaim.FullName, newUser.FullName));
+                    await _signInManager.SignInAsync(newUser, isPersistent: false);
+                    return RedirectToAction("Index", "Home");
+                }
+            }
+            await _signInManager.SignInAsync(user, isPersistent: false);
+            return RedirectToAction("Index", "Home");
+        }
     }
 }

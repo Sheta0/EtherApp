@@ -43,11 +43,11 @@
 <div class="bg-[#11001c] rounded-xl shadow-sm text-sm font-medium border1">
     @* Post Heading *@
     <div class="flex gap-3 sm:p-4 p-2.5 text-sm font-medium">
-        <a>
-            <img src="@(Url.Content("~/"+Model.User.ProfilePictureUrl) ?? "/images/avatar/User.png")" class="w-9 h-9 rounded-full bg-white" />
+        <a asp-controller="User" asp-action="Details" asp-route-userId="@Model.UserId">
+            <img src="@Url.Content("~/" + (string.IsNullOrEmpty(Model.User.ProfilePictureUrl) ? "images/avatar/User.png" : Model.User.ProfilePictureUrl))" class="w-9 h-9 rounded-full bg-white" />
         </a>
         <div class="flex-1">
-            <a>
+            <a asp-controller="User" asp-action="Details" asp-route-userId="@Model.UserId">
                 <h4 class="!text-white">@Model.User.FullName</h4>
                 <div class="text-sm text-[#af0fbf]" title="@Model.DateCreated.ToString("MM/dd/yyyy hh:mm tt")">@displayTime</div>
             </a>
@@ -104,7 +104,7 @@
     {
         <a asp-controller="Home" asp-action="PostDetails" asp-route-postId="@Model.Id">
             <div class="relative w-full h-full px-2">
-                <img src="@Model.ImageUrl" class="sm:rounded-lg w-full h-full object-cover" />
+                <img src="@Url.Content("~/" + Model.ImageUrl)" class="sm:rounded-lg w-full h-full object-cover" />
             </div>
         </a>
     }
@@ -150,9 +150,9 @@
     @*comment section*@
 
     <div class="p-2.5 border-t border-gray-100 font-normal space-y-3 relative">
-        @foreach (var comment in showAllComments ? 
-                  Model.Comment.OrderByDescending(n => n.DateCreated)
-                  : Model.Comment.OrderByDescending(n => n.DateCreated).Take(2))
+        @foreach (var comment in showAllComments ?
+        Model.Comment.OrderByDescending(n => n.DateCreated)
+        : Model.Comment.OrderByDescending(n => n.DateCreated).Take(2))
         {
             TimeSpan commentTimeSpanSincePosted = DateTime.Now.Subtract(comment.DateCreated);
             string commentDisplayTime = commentTimeSpanSincePosted switch
@@ -164,12 +164,12 @@
             };
 
             <div class="flex items-start gap-3 relative">
-                <a>
-                    <img src="@(Url.Content("~/"+comment.User.ProfilePictureUrl) ?? "/images/avatar/User.png")" class="w-8 h-8 rounded-full mr-2" />
+                <a asp-controller="User" asp-action="Details" asp-route-userId="@comment.UserId">
+                    <img src="@Url.Content("~/" + (string.IsNullOrEmpty(comment.User.ProfilePictureUrl) ? "images/avatar/User.png" : comment.User.ProfilePictureUrl))" class="w-8 h-8 bg-secondery rounded-full mr-2" />
                 </a>
                 <div class="flex-1">
                     <div class=" flex justify-content-between">
-                        <a class="text-white font-medium inline-block flex-grow">
+                        <a asp-controller="User" asp-action="Details" asp-route-userId="@comment.UserId" class="text-white font-medium inline-block flex-grow">
                             @comment.User.FullName
                         </a>
                         <small class="text-[#af0fbf]">@commentDisplayTime</small>
@@ -201,7 +201,9 @@
 
     <div class="sm:p-4 p-2.5 flex items-center border-t border-gray-100 gap-1">
         <form asp-controller="Home" asp-action="AddPostComment" class="w-full flex items-center gap-2">
-            <img src="@(profilePicture)" class="w-8 h-8 rounded-full mr-2 bg-white" />
+            <a asp-controller="User" asp-action="Details" asp-route-userId="@loggedInUser.Id">
+                <img src="@(profilePicture)" class="w-8 h-8 rounded-full mr-2 bg-white" />
+            </a>
 
             <input type="hidden" name="postId" value="@Model.Id" />
             <div class="flex-1 relative overflow-hidden h-10">

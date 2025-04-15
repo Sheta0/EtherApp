@@ -31,5 +31,18 @@ namespace EtherApp.Data.Services
                 await _appDbContext.SaveChangesAsync();
             }
         }
+
+        public async Task<List<Post>> GetUserPosts(int userId, int loggedInUserId)
+        {
+            return await _appDbContext.Posts
+               .Where(n => (!n.IsPrivate || n.UserId == loggedInUserId) && n.NrOfReports < 5 && n.UserId == userId /*&& !n.IsDeleted*/)
+               .Include(n => n.User)
+               .Include(n => n.Like)
+               .Include(n => n.Favorites)
+               .Include(n => n.Comment).ThenInclude(n => n.User)
+               .Include(n => n.Reports)
+               .OrderByDescending(n => n.DateCreated)
+               .ToListAsync();
+        }
     }
 }

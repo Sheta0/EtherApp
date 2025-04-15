@@ -37,10 +37,10 @@
                 <button type="submit" class="w-full p-4 bg-[#4A3156] text-white rounded mb-4 hover:bg-[#8D6A8E] transition-all ease-in-out">Login</button>
 
                 <div class="flex gap-4 mb-6">
-                    <button type="submit" class="flex-1 p-3 border border-gray-300 rounded flex items-center justify-center gap-1 bg-white hover:bg-gray-100 transition-all ease-in-out">
+                    <a asp-controller="Authentication" asp-action="ExternalLogin" asp-route-provider="Google" class="flex-1 p-3 border border-gray-300 rounded flex items-center justify-center gap-1 bg-white hover:bg-gray-100 transition-all ease-in-out">
                         <ion-icon class="w-8" name="logo-google"></ion-icon>
                         Login with Google
-                    </button>
+                    </a>
                 </div>
                 
                 <div class="text-center">

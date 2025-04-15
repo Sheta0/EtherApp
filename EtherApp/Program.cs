@@ -46,7 +46,13 @@ builder.Services.ConfigureApplicationCookie(options =>
     options.AccessDeniedPath = "/Home/AccessDenied";
 });
 
-//builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme);
+builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+    .AddGoogle(o =>
+    {
+        o.ClientId = builder.Configuration["Auth:Google:ClientId"] ?? "";
+        o.ClientSecret = builder.Configuration["Auth:Google:ClientSecret"] ?? "";
+        o.CallbackPath = "/signin-google";
+    });
 builder.Services.AddAuthorization();
 
 
@@ -55,9 +61,9 @@ var app = builder.Build();
 // seed the database with initial data
 using (var scope = app.Services.CreateScope())
 {
-    var dbConext = scope.ServiceProvider.GetRequiredService<AppDBContext>();
-    await dbConext.Database.MigrateAsync();
-    await DBInitializer.SeedAsync(dbConext);
+    //var dbConext = scope.ServiceProvider.GetRequiredService<AppDBContext>();
+    //await dbConext.Database.MigrateAsync();
+    //await DBInitializer.SeedAsync(dbConext);
 
     var userManager = scope.ServiceProvider.GetRequiredService<UserManager<User>>();
     var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole<int>>>();

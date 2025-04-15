@@ -11,5 +11,6 @@ namespace EtherApp.Data.Services
     {
         Task<User> GetUserByIdAsync(int id);
         Task UpdateUserProfilePicture (int loggedInUserId, string profilePictureUrl);
+        Task<List<Post>> GetUserPosts(int userId, int loggedInUser);
     }
 }
