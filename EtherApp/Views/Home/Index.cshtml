@@ -1,31 +1,42 @@
 ﻿@model List<Post>
 
-<main id="site__main" class="2xl:ml-[--w-side] xl:ml-[--w-side-sm] p-2.5 h-100vh mt-[--m-top] bg-[#11001c]">
-    <div class="lg:flex 2xl:gap-16 gap-12 max-w-[1065px] mx-auto" id="js-oversized">
+<main id="site__main" class="2xl:ml-[--w-side] xl:ml-[--w-side-sm] p-4 h-100vh mt-[--m-top] bg-[#eadbf0]">
+    <div class="lg:flex 2xl:gap-8 gap-6 max-w-[1200px] mx-auto" id="js-oversized">
         <div class="mx-auto flex-1">
 
             @await Component.InvokeAsync("Stories")
 
-            <div class="md:max-w-[580px] mx-auto flex-1 xl:space-y-6 space-y-3">
-                <div class="bg-[#3a015c] rounded-xl md:p-4 p-2 space-y-4 text-sm font-medium">
-                    <div class="flex items-center md:gap-3 gap-1">
-                        <div class="flex-1 bg-[#11001c] hover:bg-opacity-80 transition-all rounded-lg cursor-pointer"
+            <div class="md:max-w-[600px] mx-auto flex-1 xl:space-y-6 space-y-4">
+                @if (TempData["ErrorMessage"] != null)
+                {
+                    <div class="bg-red-100 text-red-700 border border-red-300 px-4 py-3 rounded-lg mb-4 relative" role="alert">
+                        <span class="block sm:inline">@TempData["ErrorMessage"]</span>
+                        <button class="absolute top-0 bottom-0 right-0 px-4 py-3" onclick="this.parentElement.style.display='none'">
+                            <ion-icon name="close-outline" class="text-red-500"></ion-icon>
+                        </button>
+                    </div>
+                }
+
+                <div class="bg-white rounded-xl md:p-4 p-3 space-y-4 text-sm font-medium shadow-sm border border-[#cabeca]">
+                    <div class="flex items-center md:gap-3 gap-2">
+                        <div class="flex-1 bg-[#eadbf0] hover:bg-[#d2b9e0] transition-all rounded-lg cursor-pointer"
                              uk-toggle="target: #create-status">
-                            <div class="py-2.5 text-center text-white">What do you have in mind?</div>
+                            <div class="py-2.5 text-center text-[#4a3256]">What do you have in mind?</div>
                         </div>
-                        <div class="flex items-center justify-center hover:bg-opacity-80 cursor-pointer p-1 px-1.5 rounded-xl transition-all bg-[#11001c] "
+                        <div class="flex items-center justify-center hover:bg-[#d2b9e0] cursor-pointer p-2 rounded-lg transition-all bg-[#eadbf0]"
                              uk-toggle="target: #create-status">
-                            <ion-icon name="image" class="text-2xl text-white"></ion-icon>
+                            <ion-icon name="image" class="text-2xl text-[#4a3256]"></ion-icon>
                         </div>
                     </div>
                 </div>
 
-                @if(Model.Count == 0) 
+                @if (Model.Count == 0)
                 {
-                <div class="bg-[#11001c] rounded-xl shadow-sm md:p-4 p-2 space-y-4 text-sm text-white font-medium border1 w-[580px]">
-                    Currently, there are no posts available. Would you like to create the first one?
+                    <div class="bg-white rounded-xl shadow-sm md:p-4 p-3 text-sm text-[#4a3256] font-medium border border-[#cabeca] w-full">
+                        Currently, there are no posts available. Would you like to create the first one?
                     </div>
-                } else
+                }
+                else
                 {
                     @foreach (var post in Model)
                     {
@@ -35,27 +46,92 @@
 
             </div>
         </div>
-        <div class="w-96">
-            <div class="lg:space-y-4 lg:pb-8 max-lg:grid sm:grid-cols-2 max-lg:gap-6">
-                <div class="box p-5 px-6 !bg-[#11001c]">
-                    <partial name="Sidebar/_SuggestedFriends" />
+        <div class="w-80 lg:block hidden">
+            <div class="lg:space-y-4 lg:pb-8 sticky top-[calc(var(--m-top)+20px)]">
+                <div class="bg-white p-5 rounded-xl shadow-sm border border-[#cabeca]">
+                    @await Component.InvokeAsync("SuggestedFriends")
                 </div>
-                <div class="box p-5 px-6 !bg-[#11001c] border1">
+                <div class="bg-white p-5 rounded-xl shadow-sm border border-[#cabeca]">
                     @await Component.InvokeAsync("Hashtags")
                 </div>
             </div>
         </div>
     </div>
+    <partial name="Home/_PostDeleteDialog" />
 </main>
 
-<partial name="../Shared/Modals/_CreateStory.cshtml" model="new StoryVM()" />
-<partial name="~/Views/Shared/Modals/_CreateStatus.cshtml" model="new PostVM()" />
-<partial name="~/Views/Shared/Home/_PostDeleteDialog.cshtml" />
+<div id="create-status" class="uk-modal" uk-modal>
+    <div class="uk-modal-dialog uk-modal-body rounded-xl shadow-xl max-w-[600px] overflow-hidden bg-white border border-[#cabeca]">
+        <div class="text-center py-3 border-b mb-4">
+            <h2 class="text-xl font-bold text-[#4a3256]">Create Post</h2>
+            <button class="uk-modal-close-default" type="button" uk-close></button>
+        </div>
+
+        @if (TempData["ErrorMessage"] != null)
+        {
+            <div class="bg-red-100 text-red-700 border border-red-300 px-4 py-3 rounded-lg mb-4" role="alert">
+                <span class="block sm:inline">@TempData["ErrorMessage"]</span>
+            </div>
+        }
+
+        <form asp-controller="Home" asp-action="CreatePost" method="post" enctype="multipart/form-data" class="space-y-4">
+            <div class="flex space-x-3 items-start">
+                <div class="flex-1">
+                    <textarea name="Content" rows="4" class="w-full rounded-lg bg-[#eadbf0] p-3 focus:outline-none focus:ring-2 focus:ring-[#d2b9e0] resize-none" placeholder="What's on your mind?"></textarea>
+                </div>
+            </div>
+
+            <div class="border rounded-lg p-4 bg-[#f7f2f9]">
+                <label class="block text-sm font-medium text-[#4a3256] mb-3">Add Photo</label>
+                <div class="flex flex-col md:flex-row md:items-center gap-3">
+                    <div id="imagePreview" class="hidden h-32 w-32 rounded-lg bg-[#eadbf0] flex items-center justify-center overflow-hidden border-2 border-dashed border-[#b797cc]">
+                        <img src="" alt="Preview" class="max-h-full max-w-full">
+                    </div>
+                    <div class="flex-1">
+                        <label class="cursor-pointer bg-[#eadbf0] hover:bg-[#d2b9e0] text-[#4a3256] py-2 px-4 rounded-lg transition-all inline-block w-full text-center">
+                            <span class="flex items-center justify-center">
+                                <ion-icon name="image-outline" class="text-xl mr-2"></ion-icon>
+                                Upload Image
+                            </span>
+                            <input type="file" name="Image" id="imageInput" class="hidden" accept="image/*">
+                        </label>
+                        <p class="text-xs text-gray-500 mt-2 text-center">Click to select an image from your device</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex justify-end pt-3 pb-1 border-t mt-3">
+                <button type="button" class="bg-gray-200 hover:bg-gray-300 px-5 py-2.5 rounded-lg text-gray-700 mr-3 uk-modal-close transition-all">
+                    Cancel
+                </button>
+                <button type="submit" class="bg-[#4a3256] hover:bg-[#b797cc] px-6 py-2.5 rounded-lg text-white font-medium transition-all shadow-sm">
+                    Post
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
 
 <script>
-    function openPostDeleteDialog(postId) {
-        UIkit.dropdown('.post-options-dropdown').hide();
-        document.getElementById('deleteDialogPostId').value = postId;
-        UIkit.modal('#postDeleteDialog').show();
-    }
+    document.addEventListener('DOMContentLoaded', function() {
+        const imageInput = document.getElementById('imageInput');
+        const imagePreview = document.getElementById('imagePreview');
+
+        imageInput.addEventListener('change', function() {
+            if (this.files && this.files[0]) {
+                const reader = new FileReader();
+
+                reader.onload = function(e) {
+                    imagePreview.querySelector('img').src = e.target.result;
+                    imagePreview.classList.remove('hidden');
+                    imagePreview.classList.add('flex');
+                }
+
+                reader.readAsDataURL(this.files[0]);
+            } else {
+                imagePreview.classList.add('hidden');
+                imagePreview.classList.remove('flex');
+            }
+        });
+    });
 </script>

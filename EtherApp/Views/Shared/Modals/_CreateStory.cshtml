@@ -1,29 +1,29 @@
 ﻿@model StoryVM;
 
 <div class="hidden lg:p-20" id="create-story" uk-modal="">
-    <div class="bg-[#11001c] uk-modal-dialog relative overflow-hidden mx-auto p-8 shadow-2xl rounded-xl md:w-[520px] w-full">
-        <div class="text-center py-4 border-b border-[#1c0d28] -mx-8">
-            <h2 class="text-2xl font-semibold !text-white">Create Your Story</h2>
-            <button type="button" class="button__ico absolute top-1 right-0 p-2 uk-modal-close hover:bg-[#1c0d28] rounded-full">
-                <ion-icon name="close-outline" class="text-2xl text-white"></ion-icon>
+    <div class="bg-white uk-modal-dialog relative overflow-hidden mx-auto p-8 shadow-sm rounded-xl md:w-[520px] w-full border border-[#cabeca]">
+        <div class="text-center py-4 border-b border-[#cabeca] -mx-8">
+            <h2 class="text-2xl font-semibold text-[#4a3256]">Create Your Story</h2>
+            <button type="button" class="button__ico absolute top-1 right-0 p-2 uk-modal-close hover:bg-[#eadbf0] rounded-full">
+                <ion-icon name="close-outline" class="text-2xl text-[#4a3256]"></ion-icon>
             </button>
         </div>
         <div class="space-y-6 mt-6">
             <form asp-controller="Stories" asp-action="CreateStory" enctype="multipart/form-data">
-                <div class="w-full h-72 relative border border-[#1c0d28] rounded-lg overflow-hidden bg-[url('../images/ad_pattern.png')] bg-repeat">
-                    <label class="flex flex-col justify-center items-center absolute inset-0 z-10 w-full cursor-pointer bg-gradient-to-t from-[#35007a]/50 to-transparent">
+                <div class="w-full h-72 relative border border-[#cabeca] rounded-lg overflow-hidden bg-[#eadbf0]">
+                    <label class="flex flex-col justify-center items-center absolute inset-0 z-10 w-full cursor-pointer bg-gradient-to-t from-[#d2b9e0]/50 to-transparent">
                         <input id="storyUpload" name="Image" type="file" accept="image/png, image/jpeg" hidden />
-                        <ion-icon id="storyUploadIcon" name="image" class="text-4xl text-white"></ion-icon>
-                        <span id="storyUploadBtn" class="!text-white mt-3 font-medium">Upload Your Image</span>
+                        <ion-icon id="storyUploadIcon" name="image" class="text-4xl text-[#4a3256]"></ion-icon>
+                        <span id="storyUploadBtn" class="text-[#4a3256] mt-3 font-medium">Upload Your Image</span>
                     </label>
                     <img id="storyPreview" />
                 </div>
                 <div class="flex justify-between items-center mt-4">
                     <div class="flex items-start gap-3">
-                        <ion-icon name="time-outline" class="text-3xl text-white rounded-full bg-[#35007a]/90 p-2"></ion-icon>
-                        <p class="text-sm text-[#35007a] font-medium">Your Story will be available <br> for <span class="font-bold text-white">24 Hours</span></p>
+                        <ion-icon name="time-outline" class="text-3xl text-white rounded-full bg-[#4a3256] p-2"></ion-icon>
+                        <p class="text-sm text-[#4a3256] font-medium">Your Story will be available <br> for <span class="font-bold text-[#4a3256]">24 Hours</span></p>
                     </div>
-                    <button type="submit" class="bg-[#35007a] hover:bg-[#3a015c] text-white px-6 py-2 rounded-lg transition-all">Create</button>
+                    <button type="submit" class="bg-[#4a3256] hover:bg-[#3a015c] text-white px-6 py-2 rounded-lg transition-all">Create</button>
                 </div>
             </form>
         </div>

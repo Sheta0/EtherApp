@@ -1,11 +1,9 @@
-﻿@model List<Post>
+﻿@model UserDetailsVM
 
 @inject UserManager<User> UserManager
 
 @{
-    // Since we're now getting posts instead of the user directly,
-    // we need to get the user from the first post (if available)
-    var user = Model != null && Model.Any() ? Model.FirstOrDefault()?.User : null;
+    var user = Model.User;
     var loggedInUser = await UserManager.GetUserAsync(User);
     var isCurrentUser = user != null && loggedInUser?.Id == user.Id;
     var profilePicture = user != null
@@ -13,50 +11,51 @@
         : Url.Content("~/images/avatar/User.png");
 }
 
-<main id="site__main" class="2xl:ml-[--w-side] xl:ml-[--w-side-sm] p-2.5 h-100vh mt-[--m-top] bg-[#11001c]">
-    <div class="lg:flex 2xl:gap-16 gap-12 max-w-[1065px] mx-auto" id="js-oversized">
+<main id="site__main" class="2xl:ml-[--w-side] xl:ml-[--w-side-sm] p-4 h-100vh mt-[--m-top] bg-[#eadbf0]">
+    <div class="lg:flex 2xl:gap-8 gap-6 max-w-[1200px] mx-auto" id="js-oversized">
         <div class="mx-auto flex-1">
             <!-- Profile Header -->
-            <div class="bg-[#11001c] rounded-xl shadow-sm mb-4 border1">
+            <div class="bg-white rounded-xl shadow-md mb-5 border border-[#cabeca]">
                 <div class="flex flex-col md:flex-row items-center p-6 gap-6">
                     <div class="relative w-24 h-24 shrink-0">
-                        <img src="@profilePicture" class="object-cover bg-white w-full h-full rounded-full" alt="Profile Picture" />
+                        <img src="@profilePicture" class="object-cover w-full h-full rounded-full border-2 border-[#4a3256]" alt="Profile Picture" />
                     </div>
                     <div class="flex-1 text-center md:text-left">
                         @if (user != null)
                         {
-                            <h1 class="text-2xl font-semibold !text-white">@user.FullName</h1>
-                            <p class="text-sm text-blue-600 mt-1 font-normal">@user.UserName</p>
-                            <p class="text-sm text-[#dab1da] mt-4">@(string.IsNullOrEmpty(user.Bio) ? "No bio available" : user.Bio)</p>
+                            <h1 class="text-2xl font-semibold text-[#4a3256]">@user.FullName</h1>
+                            <p class="text-sm text-[#cabeca] mt-1 font-normal">@user.UserName</p>
+                            <p class="text-sm text-[#4a3256] mt-4">@(string.IsNullOrEmpty(user.Bio) ? "No bio available" : user.Bio)</p>
                         }
                         else
                         {
-                            <h1 class="text-2xl font-semibold !text-white">User not found</h1>
+                            <h1 class="text-2xl font-semibold text-[#4a3256]">User not found</h1>
                         }
                     </div>
                     @if (user != null && !isCurrentUser)
                     {
                         <div class="flex items-center gap-3">
-                            <button type="button" class="bg-[#3a015c] hover:bg-opacity-80 transition-all ease-in-out duration-200 text-sm text-white rounded-full cursor-pointer px-4 py-2">
-                                <ion-icon name="person-add-outline" class="mr-1"></ion-icon>
-                                Add Friend
-                            </button>
-                            <button type="button" class="bg-[#3a015c] hover:bg-opacity-80 transition-all ease-in-out duration-200 text-sm text-white rounded-full cursor-pointer p-2">
-                                <ion-icon name="mail-outline"></ion-icon>
-                            </button>
+
+                            <form asp-controller="Friends" asp-action="SendRequest">
+                                <input type="hidden" name="receiverId" value="@user.Id" />
+                                <button type="submit" class="bg-[#4a3256] hover:bg-opacity-90 transition-all ease-in-out duration-200 text-sm text-white rounded-full cursor-pointer px-4 py-2">
+                                    <ion-icon name="person-add-outline" class="mr-1"></ion-icon>
+                                    Add Friend
+                                </button>
+                            </form>
                         </div>
                     }
                 </div>
 
                 <!-- Tabs -->
-                <div class="relative border-b">
-                    <nav class="nav__underline px-6 p-0 border-transparent -mb-px">
-                        <ul class="uk-slider-items w-[calc(100%+10px)] !overflow-hidden" uk-switcher="connect: #profile_tab; animation: uk-animation-slide-right-medium, uk-animation-slide-left-medium">
+                <div class="relative border-t border-[#cabeca]">
+                    <nav class="nav__underline px-6 py-1 border-transparent -mb-px">
+                        <ul class="uk-slider-items w-[calc(100%+10px)] !overflow-hidden flex" uk-switcher="connect: #profile_tab; animation: uk-animation-slide-right-medium, uk-animation-slide-left-medium">
                             <li class="w-auto pr-2.5">
-                                <a href="#" class="tab-link text-white">Posts</a>
+                                <a href="#" class="tab-link text-[#4a3256] font-medium py-2 inline-block">Posts</a>
                             </li>
                             <li class="w-auto pr-2.5">
-                                <a href="#" class="tab-link text-white">Friends</a>
+                                <a href="#" class="tab-link text-[#4a3256] font-medium py-2 inline-block">Friends</a>
                             </li>
                         </ul>
                     </nav>
@@ -66,10 +65,10 @@
             <!-- Tab Content -->
             <div id="profile_tab" class="uk-switcher">
                 <!-- Posts Tab -->
-                <div class="md:max-w-[580px] mx-auto flex-1 xl:space-y-6 space-y-3">
-                    @if (Model == null || !Model.Any())
+                <div class="md:max-w-[600px] mx-auto flex-1 xl:space-y-6 space-y-4">
+                    @if (Model.Posts == null || !Model.Posts.Any())
                     {
-                        <div class="bg-[#11001c] rounded-xl shadow-sm md:p-4 p-2 space-y-4 text-sm text-white font-medium border1 w-full md:w-[580px]">
+                        <div class="bg-white rounded-xl shadow-md md:p-4 p-3 text-sm text-[#4a3256] font-medium border border-[#cabeca] w-full">
                             @if (isCurrentUser)
                             {
                                 <span>You haven't posted anything yet.</span>
@@ -82,7 +81,7 @@
                     }
                     else
                     {
-                        @foreach (var post in Model)
+                        @foreach (var post in Model.Posts)
                         {
                             <partial name="Home/_Post" model="post" view-data='new ViewDataDictionary(ViewData){ {"ShowAllComments", false} }' />
                         }
@@ -90,9 +89,9 @@
                 </div>
 
                 <!-- Friends Tab -->
-                <div class="md:max-w-[580px] mx-auto flex-1 xl:space-y-6 space-y-3">
-                    <div class="bg-[#11001c] rounded-xl shadow-sm md:p-4 p-2 text-sm font-medium border1">
-                        <h3 class="text-lg font-semibold !text-white mb-4">Friends</h3>
+                <div class="md:max-w-[600px] mx-auto flex-1 xl:space-y-6 space-y-4">
+                    <div class="bg-white rounded-xl shadow-md md:p-4 p-3 text-sm font-medium border border-[#cabeca]">
+                        <h3 class="text-lg font-semibold text-[#4a3256] mb-4">Friends</h3>
 
                         <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
                             @* Static friends for now - replace with real data later *@
@@ -100,9 +99,9 @@
                             {
                                 <div class="flex flex-col items-center">
                                     <a href="#" class="relative">
-                                        <img src="~/images/avatar/User.png" class="w-16 h-16 rounded-full bg-white" alt="Friend Avatar" />
+                                        <img src="~/images/avatar/User.png" class="w-16 h-16 rounded-full border border-[#cabeca]" alt="Friend Avatar" />
                                     </a>
-                                    <a href="#" class="text-white text-sm mt-2 truncate w-full text-center">Friend Name @i</a>
+                                    <a href="#" class="text-[#4a3256] text-sm mt-2 truncate w-full text-center">Friend Name @i</a>
                                 </div>
                             }
                         </div>
@@ -112,9 +111,9 @@
         </div>
 
         <!-- Sidebar - Only showing Suggested Friends -->
-        <div class="w-96">
-            <div class="box p-5 px-6 !bg-[#11001c] border1">
-                <partial name="Sidebar/_SuggestedFriends" />
+        <div class="w-80 lg:block hidden">
+            <div class="bg-white p-5 rounded-xl shadow-sm border border-[#cabeca] sticky top-[calc(var(--m-top)+20px)]">
+                @await Component.InvokeAsync("SuggestedFriends")
             </div>
         </div>
     </div>

@@ -1,36 +1,52 @@
-﻿<div id="site__sidebar" class="fixed top-0 left-0 z-[99] pt-[64px] overflow-hidden transition-transform xl:duration-500 max-xl:w-full max-xl:-translate-x-full">
-    <div class="p-2 max-xl: bg-[#11001c] shadow-sm 2xl:w-72 sm:w-64 w-[80%] h-[calc(100vh-64px)] relative z-30 max-lg:border-r">
+﻿<div id="site__sidebar" class="fixed top-0 left-0 z-[99] pt-[70px] overflow-hidden transition-transform xl:duration-500 max-xl:w-full max-xl:-translate-x-full">
+    <div class="p-3 max-xl:bg-white shadow-sm 2xl:w-72 sm:w-64 w-[80%] h-[calc(100vh-70px)] relative z-30 max-lg:border-r border-[#cabeca] bg-white">
         <div class="pr-4" data-simplebar>
             <nav id="side">
                 <ul>
                     <li>
                         <a class="group" asp-controller="Home" asp-action="Index">
-                            <img src="~/images/icons/home.png" alt="Feed" class="w-6" />
-                            <span class="!text-white group-hover:!text-black"> Feed </span>
+                            <div class="flex items-center gap-3 py-3 px-3.5 rounded-xl hover:bg-[#eadbf0] transition-all">
+                                <ion-icon name="home-outline" class="text-xl text-[#4a3256]"></ion-icon>
+                                <span class="text-[#4a3256] font-medium"> Feed </span>
+                            </div>
                         </a>
                     </li>
                     <li>
                         <a class="group" asp-controller="Favorites" asp-action="Index">
-                            <img src="~/images/icons/page.png" alt="Favorites" class="w-6" />
-                            <span class="text-white group-hover:text-black"> Favorites </span>
+                            <div class="flex items-center gap-3 py-3 px-3.5 rounded-xl hover:bg-[#eadbf0] transition-all">
+                                <ion-icon name="bookmark-outline" class="text-xl text-[#4a3256]"></ion-icon>
+                                <span class="text-[#4a3256] font-medium"> Favorites </span>
+                            </div>
                         </a>
                     </li>
                     <li>
-                        <a class="group">
-                            <img src="~/images/icons/group-2.png" alt="Friends" class="w-6" />
-                            <span class="text-white group-hover:text-black"> Friends </span>
+                        <a class="group" asp-controller="Friends" asp-action="Index">
+                            <div class="flex items-center gap-3 py-3 px-3.5 rounded-xl hover:bg-[#eadbf0] transition-all">
+                                <ion-icon name="people-outline" class="text-xl text-[#4a3256]"></ion-icon>
+                                <span class="text-[#4a3256] font-medium"> Friends </span>
+                            </div>
                         </a>
                     </li>
+                    <li>
+                        <a asp-controller="Recommendations" asp-action="Index" class="nav-link">
+                            <div class="flex items-center gap-3 py-3 px-3.5 rounded-xl hover:bg-[#eadbf0] transition-all">
+                                <ion-icon name="compass-outline" class="text-xl text-[#4a3256]"></ion-icon>
+                                <span class="text-[#4a3256] font-medium"> Discover </span>
+                            </div>
+                        </a>
+                    </li>
+
                 </ul>
             </nav>
-            <hr class="my-2" />
-            <nav id="side" class="font-medium text-sm text-black border-top pt-3 mt-2">
-                <div class="px-3 pb-2 text-sm text-white font-medium">Pages</div>
-                <ul class="mt-2 -space-y-2">
+            <hr class="my-3 border-[#cabeca]" />
+            <nav id="side" class="font-medium text-sm border-top pt-1">
+                <ul class="mt-2">
                     <li>
                         <a class="group" asp-controller="Settings" asp-action="Index">
-                            <ion-icon class="text-white group-hover:text-black" name="settings-outline"></ion-icon>
-                            <span class="text-white group-hover:text-black"> Settings </span>
+                            <div class="flex items-center gap-3 py-3 px-3.5 rounded-xl hover:bg-[#eadbf0] transition-all">
+                                <ion-icon class="text-xl text-[#4a3256]" name="settings-outline"></ion-icon>
+                                <span class="text-[#4a3256] font-medium"> Settings </span>
+                            </div>
                         </a>
                     </li>
                 </ul>

@@ -41,13 +41,19 @@ namespace EtherApp.Controllers
         [HttpPost]
         public async Task<IActionResult> CreatePost(PostVM post)
         {
-
             var loggedInUser = GetUserId();
             if (loggedInUser is null) return RedirectToLogin();
 
+            post.Content ??= string.Empty;
+
             var imageUploadPath = await _filesService.UploadImageAsync(post.Image, ImageFileType.PostImage);
 
-            // Create a new post
+            if (string.IsNullOrWhiteSpace(post.Content) && string.IsNullOrEmpty(imageUploadPath))
+            {
+                TempData["ErrorMessage"] = "Please provide either text content or an image for your post.";
+                return RedirectToAction("Index");
+            }
+
             var newPost = new Post
             {
                 Content = post.Content,
@@ -59,10 +65,16 @@ namespace EtherApp.Controllers
             };
 
             await _postsService.CreatePostAsync(newPost);
-            await _hashtagsService.ProcessHashtagsForNewPostAsync(post.Content, loggedInUser.Value);
+
+            // Only process hashtags if content is not empty
+            if (!string.IsNullOrWhiteSpace(post.Content))
+            {
+                await _hashtagsService.ProcessHashtagsForNewPostAsync(post.Content, loggedInUser.Value);
+            }
 
             return RedirectToAction("Index");
         }
+
 
         [HttpPost]
         public async Task<IActionResult> TogglePostLike(PostLikeVM postLikeVM)
