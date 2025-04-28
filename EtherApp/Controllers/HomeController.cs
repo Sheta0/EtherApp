@@ -77,14 +77,17 @@ namespace EtherApp.Controllers
 
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> TogglePostLike(PostLikeVM postLikeVM)
         {
             var loggedInUser = GetUserId();
             if (loggedInUser is null) return RedirectToLogin();
 
             await _postsService.TogglePostLikeAsync(postLikeVM.PostId, loggedInUser.Value);
+            
+            var post = await _postsService.GetPostByIdAsync(postLikeVM.PostId);
 
-            return RedirectToAction("Index");
+            return PartialView("Home/_Post", post);
         }
 
         [HttpPost]
@@ -94,6 +97,12 @@ namespace EtherApp.Controllers
             if (loggedInUser is null) return RedirectToLogin();
 
             await _postsService.TogglePostFavoriteAsync(postFavoriteVM.PostId, loggedInUser.Value);
+
+            if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+            {
+                var post = await _postsService.GetPostByIdAsync(postFavoriteVM.PostId);
+                return PartialView("Home/_Post", post);
+            }
 
             return RedirectToAction("Index");
         }
@@ -123,8 +132,14 @@ namespace EtherApp.Controllers
                 DateCreated = DateTime.Now,
                 DateUpdated = DateTime.Now,
             };
-            
+
             await _postsService.AddPostCommontAsync(newComment);
+
+            if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+            {
+                var post = await _postsService.GetPostByIdAsync(postCommentVM.PostId);
+                return PartialView("Home/_Post", post);
+            }
 
             return RedirectToAction("Index");
         }

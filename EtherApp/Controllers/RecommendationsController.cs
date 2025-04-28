@@ -21,10 +21,8 @@ namespace EtherApp.Controllers
             var loggedInUser = GetUserId();
             if (loggedInUser is null) return RedirectToLogin();
 
-            // Get recommended posts for the user
             var recommendedPosts = await _mlInterestService.GetRecommendedPostsForUser(loggedInUser.Value);
 
-            // Get similar users
             var similarUsers = await _mlInterestService.GetSimilarUsers(loggedInUser.Value);
 
             var viewModel = new RecommendationsVM

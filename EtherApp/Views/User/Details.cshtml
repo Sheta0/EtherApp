@@ -1,6 +1,7 @@
 ﻿@model UserDetailsVM
 
 @inject UserManager<User> UserManager
+@inject IFriendsService FriendsService
 
 @{
     var user = Model.User;
@@ -9,6 +10,9 @@
     var profilePicture = user != null
         ? Url.Content("~/" + (string.IsNullOrEmpty(user.ProfilePictureUrl) ? "images/avatar/User.png" : user.ProfilePictureUrl))
         : Url.Content("~/images/avatar/User.png");
+
+    var userFriends = user != null ? await FriendsService.GetUserFriendsAsync(user.Id) : new List<Friendship>();
+}
 }
 
 <main id="site__main" class="2xl:ml-[--w-side] xl:ml-[--w-side-sm] p-4 h-100vh mt-[--m-top] bg-[#eadbf0]">
@@ -94,14 +98,44 @@
                         <h3 class="text-lg font-semibold text-[#4a3256] mb-4">Friends</h3>
 
                         <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-                            @* Static friends for now - replace with real data later *@
-                            @for (int i = 1; i <= 8; i++)
+                            @if (userFriends != null && userFriends.Any())
                             {
-                                <div class="flex flex-col items-center">
-                                    <a href="#" class="relative">
-                                        <img src="~/images/avatar/User.png" class="w-16 h-16 rounded-full border border-[#cabeca]" alt="Friend Avatar" />
-                                    </a>
-                                    <a href="#" class="text-[#4a3256] text-sm mt-2 truncate w-full text-center">Friend Name @i</a>
+                                foreach (var friendship in userFriends)
+                                {
+                                    var friend = friendship.SenderId == user.Id ? friendship.Receiver : friendship.Sender;
+                                    <div class="flex flex-col items-center">
+                                        <a asp-controller="User" asp-action="Details" asp-route-userId="@friend.Id" class="relative">
+                                            <img src="@Url.Content("~/" + (string.IsNullOrEmpty(friend.ProfilePictureUrl) ? "images/avatar/User.png" : friend.ProfilePictureUrl))"
+                                                 class="w-16 h-16 rounded-full border border-[#cabeca]" alt="@friend.FullName" />
+                                        </a>
+                                        <a asp-controller="User" asp-action="Details" asp-route-userId="@friend.Id" class="text-[#4a3256] text-sm mt-2 truncate w-full text-center">@friend.FullName</a>
+                                        @if (isCurrentUser)
+                                        {
+                                            <form asp-controller="Friends" asp-action="RemoveFriend" class="mt-2">
+                                                <input type="hidden" name="friendshipId" value="@friendship.Id" />
+                                                <button type="submit" class="bg-gray-200 hover:bg-gray-300 transition-all ease-in-out duration-200 text-xs text-[#4a3256] rounded-full cursor-pointer px-3 py-1.5">
+                                                    Unfriend
+                                                </button>
+                                            </form>
+                                        }
+                                    </div>
+                                }
+                            }
+                            else
+                            {
+                                <div class="text-sm text-[#4a3256] font-medium py-3 col-span-full">
+                                    @if (user == null)
+                                    {
+                                        <span>User not found.</span>
+                                    }
+                                    else if (isCurrentUser)
+                                    {
+                                        <span>You don't have any friends yet.</span>
+                                    }
+                                    else
+                                    {
+                                        <span>This user doesn't have any friends yet.</span>
+                                    }
                                 </div>
                             }
                         </div>
