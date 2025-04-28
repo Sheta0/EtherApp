@@ -1,5 +1,6 @@
 using EtherApp.Data;
 using EtherApp.Data.Helpers;
+using EtherApp.Data.Hubs;
 using EtherApp.Data.Models;
 using EtherApp.Data.Services;
 using Microsoft.AspNetCore.Authentication.Cookies;
@@ -28,6 +29,7 @@ builder.Services.AddScoped<IStoriesService, StoriesService>();
 builder.Services.AddScoped<IFilesService, FilesService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IFriendsService, FriendsService>();
+builder.Services.AddScoped<INotificationService, NotificationService>();
 builder.Services.AddScoped<IMLInterestService, MLInterestService>();
 
 builder.Services.AddSingleton<MLContext>(new MLContext(seed: 0));
@@ -60,6 +62,8 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
         o.CallbackPath = "/signin-google";
     });
 builder.Services.AddAuthorization();
+
+builder.Services.AddSignalR();
 
 
 var app = builder.Build();
@@ -97,5 +101,7 @@ app.UseAuthorization();
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
+
+app.MapHub<NotificationHub>("/notificationHub");
 
 app.Run();

@@ -1,33 +1,29 @@
 using EtherApp.Controllers.Base;
+using EtherApp.Data.Helpers.Constants;
 using EtherApp.Data.Helpers.Enums;
 using EtherApp.Data.Models;
 using EtherApp.Data.Services;
 using EtherApp.ViewModels.Home;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
+using Microsoft.Extensions.Hosting;
 
 namespace EtherApp.Controllers
 {
     [Authorize]
-    public class HomeController : BaseController
+    public class HomeController(
+        IPostsService _postsService,
+        IHashtagsService _hashtagsService,
+        IFilesService _filesService,
+        INotificationService notificationService) : BaseController
     {
-        private readonly ILogger<HomeController> _logger;
-        private readonly IPostsService _postsService;
-        private readonly IHashtagsService _hashtagsService;
-        private readonly IFilesService _filesService;
 
-        public HomeController(ILogger<HomeController> logger, IPostsService postsService, IHashtagsService hashtagsService, IFilesService filesService)
-        {
-            _logger = logger;
-            _postsService = postsService;
-            _hashtagsService = hashtagsService;
-            _filesService = filesService;
-        }
 
         public async Task<IActionResult> Index()
         {
             var loggedInUser = GetUserId();
-            if(loggedInUser is null) return RedirectToLogin();
+            if (loggedInUser is null) return RedirectToLogin();
             var allPosts = await _postsService.GetAllPostsAsync(loggedInUser.Value);
             return View(allPosts);
         }
@@ -39,6 +35,7 @@ namespace EtherApp.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> CreatePost(PostVM post)
         {
             var loggedInUser = GetUserId();
@@ -81,26 +78,37 @@ namespace EtherApp.Controllers
         public async Task<IActionResult> TogglePostLike(PostLikeVM postLikeVM)
         {
             var loggedInUser = GetUserId();
+            var userName = GetUserFullName();
             if (loggedInUser is null) return RedirectToLogin();
 
-            await _postsService.TogglePostLikeAsync(postLikeVM.PostId, loggedInUser.Value);
-            
+            var result = await _postsService.TogglePostLikeAsync(postLikeVM.PostId, loggedInUser.Value);
+
             var post = await _postsService.GetPostByIdAsync(postLikeVM.PostId);
+
+            if (result.SendNotification && loggedInUser != post.UserId)
+                await notificationService.AddNewNotificationAsync(post.UserId, NotificationType.Like, userName, postLikeVM.PostId);
+
 
             return PartialView("Home/_Post", post);
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> TogglePostFavorite(PostFavoriteVM postFavoriteVM)
         {
             var loggedInUser = GetUserId();
+            var userName = GetUserFullName();
             if (loggedInUser is null) return RedirectToLogin();
 
-            await _postsService.TogglePostFavoriteAsync(postFavoriteVM.PostId, loggedInUser.Value);
+            var result = await _postsService.TogglePostFavoriteAsync(postFavoriteVM.PostId, loggedInUser.Value);
+
+            var post = await _postsService.GetPostByIdAsync(postFavoriteVM.PostId);
+
+            if (result.SendNotification && loggedInUser != post.UserId)
+                await notificationService.AddNewNotificationAsync(post.UserId, NotificationType.Favorite, userName, postFavoriteVM.PostId);
 
             if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
             {
-                var post = await _postsService.GetPostByIdAsync(postFavoriteVM.PostId);
                 return PartialView("Home/_Post", post);
             }
 
@@ -108,6 +116,7 @@ namespace EtherApp.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> TogglePostVisibility(PostVisibilityVM postVisibilityVM)
         {
             var loggedInUser = GetUserId();
@@ -119,9 +128,11 @@ namespace EtherApp.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> AddPostComment(PostCommentVM postCommentVM)
         {
             var loggedInUser = GetUserId();
+            var userName = GetUserFullName();
             if (loggedInUser is null) return RedirectToLogin();
 
             var newComment = new Comment()
@@ -135,9 +146,13 @@ namespace EtherApp.Controllers
 
             await _postsService.AddPostCommontAsync(newComment);
 
+            var post = await _postsService.GetPostByIdAsync(postCommentVM.PostId);
+            if (loggedInUser != post.UserId)
+                await notificationService.AddNewNotificationAsync(post.UserId, NotificationType.Comment, userName, postCommentVM.PostId);
+
+
             if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
             {
-                var post = await _postsService.GetPostByIdAsync(postCommentVM.PostId);
                 return PartialView("Home/_Post", post);
             }
 
@@ -145,6 +160,7 @@ namespace EtherApp.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> AddPostReport(PostReportVM postReportVM)
         {
             var loggedInUser = GetUserId();
@@ -156,6 +172,7 @@ namespace EtherApp.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> RemovePostComment(RemoveCommentVM removeCommentVM)
         {
             await _postsService.DeletePostCommentAsync(removeCommentVM.CommentId);
@@ -164,6 +181,7 @@ namespace EtherApp.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> PostDelete(PostDeleteVM postDeleteVM)
         {
 

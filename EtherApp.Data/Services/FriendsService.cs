@@ -26,7 +26,7 @@ namespace EtherApp.Data.Services
             await context.SaveChangesAsync();
         }
 
-        public async Task UpdateRequestAsync(int requestId, string newStatus)
+        public async Task<FriendRequest> UpdateRequestAsync(int requestId, string newStatus)
         {
             var request = await context.FriendRequests.FindAsync(requestId);
             if (request != null && request.Status == FriendRequestStatus.Pending)
@@ -48,6 +48,8 @@ namespace EtherApp.Data.Services
                 await context.Friendships.AddAsync(friendship);
                 await context.SaveChangesAsync();
             }
+
+            return request;
         }
 
         public async Task RemoveFriendAsync(int friendshipId)

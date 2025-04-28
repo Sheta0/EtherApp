@@ -33,9 +33,9 @@
         </div>
         <div class="max-w-[1220px] mx-auto flex items-center">
             <div class="flex items-center sm:gap-4 gap-2 absolute right-5 top-1/2 -translate-y-1/2">
-                <button type="button" class="relative flex items-center justify-center w-10 h-10 rounded-full hover:bg-[#eadbf0] transition duration-200 group">
+                <button type="button" id="notificationsBtn" class="relative flex items-center justify-center w-10 h-10 rounded-full hover:bg-[#eadbf0] transition duration-200 group">
                     <ion-icon name="notifications-outline" class="text-xl text-[#4a3256] group-hover:text-[#4a3256]"></ion-icon>
-                    <span id="notificationsCount" class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full px-1">1</span>
+                    <span id="notificationsCount" class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full px-1">0</span>
                 </button>
                 <div class="hidden bg-white pr-1.5 rounded-lg drop-shadow-xl md:w-[365px] w-screen border border-[#cabeca]"
                      uk-drop="offset:6; pos:bottom-right; mode: click; animate-out:true;">
@@ -83,3 +83,103 @@
         </div>
     </div>
 </header>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/aspnet-signalr/1.0.27/signalr.min.js" integrity="sha512-a+73ErrZPjhqOu0qbW1QLsenEF4pvDjmnd+Ws6hkDyJlrwAigOQAxQhIT+fPNFWScUvtJQvn+G535TT2C6/G4g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script>
+    // Define globally accessible functions for notification actions
+    window.markNotificationAsRead = function(notificationId) {
+        console.log('Marking notification as read:', notificationId);
+
+        fetch('/Notifications/MarkAsRead', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(notificationId)
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.text();
+        })
+        .then(html => {
+            console.log('Successfully marked notification as read');
+            document.getElementById('notification-dropdown').innerHTML = html;
+        })
+        .catch(error => {
+            console.error('Error marking notification as read:', error);
+        });
+    };
+
+    window.markAllNotificationsAsRead = function() {
+        console.log('Marking all notifications as read');
+
+        fetch('/Notifications/MarkAllAsRead', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.text();
+        })
+        .then(html => {
+            console.log('Successfully marked all notifications as read');
+            document.getElementById('notification-dropdown').innerHTML = html;
+        })
+        .catch(error => {
+            console.error('Error marking all notifications as read:', error);
+        });
+    };
+
+    document.addEventListener("DOMContentLoaded", function() {
+        // Function to update notification count
+        function updateNotificationCount() {
+            fetch("/Notifications/GetCount")
+                .then(response => response.json())
+                .then(count => {
+                    console.log("Notification count:", count);
+                    const countElement = document.getElementById("notificationsCount");
+                    countElement.textContent = count;
+
+                    // Hide badge if no notifications
+                    countElement.style.display = count > 0 ? '' : 'none';
+                })
+                .catch(error => console.error("Error fetching notification count:", error));
+        }
+
+        // Initial count update
+        updateNotificationCount();
+
+        // Load notifications when clicking the notifications button
+        document.getElementById('notificationsBtn').addEventListener('click', function() {
+            fetch('/Notifications/GetAllNotifications')
+                .then(response => response.text())
+                .then(html => {
+                    document.getElementById('notification-dropdown').innerHTML = html;
+                })
+                .catch(error => console.error("Error fetching notifications:", error));
+        });
+
+        // Set up SignalR
+        const connection = new signalR.HubConnectionBuilder()
+            .withUrl("/notificationHub")
+            .build();
+
+        connection.on("ReceiveNotification", function(count) {
+            console.log("Notification count updated:", count);
+            const countElement = document.getElementById("notificationsCount");
+            countElement.textContent = count;
+            countElement.style.display = count > 0 ? '' : 'none';
+        });
+
+        connection.start()
+            .then(() => console.log("SignalR Connected"))
+            .catch(err => console.error("SignalR Connection Error:", err));
+    });
+</script>
+

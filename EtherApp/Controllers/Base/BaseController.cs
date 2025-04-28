@@ -13,6 +13,14 @@ namespace EtherApp.Controllers.Base
             return int.Parse(loggedInUser);
         }
 
+        protected string GetUserFullName()
+        {
+            var loggedInUser = User.FindFirstValue(ClaimTypes.Name);
+            if (string.IsNullOrEmpty(loggedInUser))
+                return string.Empty;
+            return loggedInUser;
+        }
+
         protected IActionResult RedirectToLogin()
         {
             return RedirectToAction("Login", "Authentication");

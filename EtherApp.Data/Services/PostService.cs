@@ -1,4 +1,5 @@
-﻿using EtherApp.Data.Helpers;
+﻿using EtherApp.Data.Dtos;
+using EtherApp.Data.Helpers;
 using EtherApp.Data.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
@@ -10,14 +11,8 @@ using System.Threading.Tasks;
 
 namespace EtherApp.Data.Services
 {
-    public class PostService : IPostsService
+    public class PostService(AppDBContext _context, INotificationService notificationService) : IPostsService
     {
-        private readonly AppDBContext _context;
-        public PostService(AppDBContext context) 
-        {
-            _context = context;
-        }
-
 
         public async Task<List<Post>> GetAllPostsAsync(int loggedInUserId)
         {
@@ -128,8 +123,13 @@ namespace EtherApp.Data.Services
             await _context.SaveChangesAsync();
         }
 
-        public async Task TogglePostFavoriteAsync(int postId, int userId)
+        public async Task<GetNotificationDto> TogglePostFavoriteAsync(int postId, int userId)
         {
+            var response = new GetNotificationDto()
+            {
+                Success = true,
+                SendNotification = false
+            };
             //check if user favorited the post
             var favorite = await _context.Favorites
                 .Where(l => l.PostId == postId && l.UserId == userId)
@@ -150,12 +150,21 @@ namespace EtherApp.Data.Services
                 };
                 await _context.Favorites.AddAsync(newFavorite);
                 await _context.SaveChangesAsync();
+
+                response.SendNotification = true;
             }
+
+            return response;
         }
 
-        public async Task TogglePostLikeAsync(int postId, int userId)
+        public async Task<GetNotificationDto> TogglePostLikeAsync(int postId, int userId)
         {
-            //check if user liked the post
+            var response = new GetNotificationDto()
+            {
+                Success = true,
+                SendNotification = false
+            };
+            // Check if user liked the post
             var like = await _context.Likes
                 .Where(l => l.PostId == postId && l.UserId == userId)
                 .FirstOrDefaultAsync();
@@ -174,8 +183,13 @@ namespace EtherApp.Data.Services
                 };
                 await _context.Likes.AddAsync(newLike);
                 await _context.SaveChangesAsync();
+
+                response.SendNotification = true;
             }
+
+            return response;
         }
+
 
         public async Task TogglePostVisibilityAsync(int postId, int userId)
         {

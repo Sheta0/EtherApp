@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace EtherApp.Controllers
 {
-    public class FriendsController(IFriendsService friendsService) : BaseController
+    public class FriendsController(IFriendsService friendsService, INotificationService notificationService) : BaseController
     {
         public async Task<IActionResult> Index()
         {
@@ -30,9 +30,11 @@ namespace EtherApp.Controllers
         public async Task<IActionResult> SendRequest(int receiverId)
         {
             var senderId = GetUserId();
+            var userName = GetUserFullName();
             if (!senderId.HasValue)
                 return RedirectToLogin();
             await friendsService.SendRequestAsync(senderId.Value, receiverId);
+            await notificationService.AddNewNotificationAsync(receiverId, NotificationType.FriendRequest, userName, null);
             return RedirectToAction("Index", "Home");
         }
 
@@ -40,9 +42,15 @@ namespace EtherApp.Controllers
         public async Task<IActionResult> UpdateRequest(int requestId, string status)
         {
             var userId = GetUserId();
+            var userName = GetUserFullName();
             if (!userId.HasValue)
                 return RedirectToLogin();
-            await friendsService.UpdateRequestAsync(requestId, status);
+
+            var request = await friendsService.UpdateRequestAsync(requestId, status);
+
+            if (status == FriendRequestStatus.Accepted)
+                await notificationService.AddNewNotificationAsync(request.SenderId, NotificationType.FriendRequestAccepted, userName, null);
+
             return RedirectToAction("Index");
         }
 
