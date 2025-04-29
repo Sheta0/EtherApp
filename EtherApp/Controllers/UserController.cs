@@ -1,12 +1,15 @@
 ﻿using EtherApp.Controllers.Base;
+using EtherApp.Data.Helpers.Constants;
 using EtherApp.Data.Models;
 using EtherApp.Data.Services;
 using EtherApp.ViewModels.Users;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
 namespace EtherApp.Controllers
 {
+    [Authorize(Roles = AppRoles.User)]
     public class UserController(IUserService userService) : BaseController
     {
         public async Task<IActionResult> Details(int userId)

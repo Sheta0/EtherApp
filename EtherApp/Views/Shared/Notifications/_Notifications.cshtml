@@ -64,17 +64,21 @@
                         @{
                             string redirectUrl = notification.Type switch
                             {
-                                NotificationType.FriendRequest => Url.Action("index", "Friends"),
-                                NotificationType.FriendRequestAccepted => Url.Action("index", "Friends"),
-                            _ => Url.Action("Details", "Home", new { postId = notification.PostId })
+                                "FriendRequest" => Url.Action("Index", "Friends"),
+                                "FriendRequestAccepted" => Url.Action("Index", "Friends"),
+                                "Like" => Url.Action("PostDetails", "Home", new { postId = notification.PostId }),
+                                "Comment" => Url.Action("PostDetails", "Home", new { postId = notification.PostId }),
+                                "Favorite" => Url.Action("PostDetails", "Home", new { postId = notification.PostId }),
+                                _ => Url.Action("Index", "Home")
                             };
                         }
 
-                            <a href="@redirectUrl"
-                               class="shrink-0 text-[#4a3256] hover:bg-[#eadbf0] w-8 h-8 rounded-full flex items-center justify-center"
-                               onclick="event.preventDefault(); window.markNotificationAsRead(@notification.Id); window.location.href='@redirectUrl';">
-                                <ion-icon name="arrow-forward"></ion-icon>
-                            </a>
+
+                        <a href="@redirectUrl"
+                           class="shrink-0 text-[#4a3256] hover:bg-[#eadbf0] w-8 h-8 rounded-full flex items-center justify-center"
+                           onclick="event.preventDefault(); window.markNotificationAsRead(@notification.Id); window.location.href='@redirectUrl';">
+                            <ion-icon name="arrow-forward"></ion-icon>
+                        </a>
 
                     </div>
                 </div>

@@ -1,4 +1,5 @@
 ﻿using EtherApp.Controllers.Base;
+using EtherApp.Data.Helpers.Constants;
 using EtherApp.Data.Services;
 using EtherApp.ViewModels.Recommendations;
 using Microsoft.AspNetCore.Authorization;
@@ -6,7 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace EtherApp.Controllers
 {
-    [Authorize]
+    [Authorize(Roles = AppRoles.User)]
     public class RecommendationsController : BaseController
     {
         private readonly IMLInterestService _mlInterestService;

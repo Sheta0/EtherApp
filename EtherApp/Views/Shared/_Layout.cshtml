@@ -16,9 +16,15 @@
         @if (User.Identity.IsAuthenticated)
         {
             @* Topbar *@
-            <partial name="Navigation/_TopBar.cshtml" />
-            @* SideBar *@
-            <partial name="Navigation/_SideBar.cshtml" />
+            @if(User.IsInRole("Admin"))
+            {
+                <partial name="Navigation/_TopBarAdmin.cshtml" />
+            }
+            else if(User.IsInRole("User"))
+            {
+                <partial name="Navigation/_TopBar.cshtml" />
+                <partial name="Navigation/_SideBar.cshtml" />
+            }
         }
 
         @RenderBody()

@@ -30,6 +30,7 @@ builder.Services.AddScoped<IFilesService, FilesService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IFriendsService, FriendsService>();
 builder.Services.AddScoped<INotificationService, NotificationService>();
+builder.Services.AddScoped<IAdminService, AdminService>();
 builder.Services.AddScoped<IMLInterestService, MLInterestService>();
 
 builder.Services.AddSingleton<MLContext>(new MLContext(seed: 0));

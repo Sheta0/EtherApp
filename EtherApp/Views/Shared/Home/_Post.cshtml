@@ -173,6 +173,15 @@
                             <p class="mt-0.5 text-[#4a3256]">
                                 @comment.Content
                             </p>
+                            @if (comment.UserId == loggedInUserId)
+                            {
+                                <form asp-controller="Home" asp-action="RemovePostComment" method="post" class="ml-2">
+                                    <input type="hidden" name="commentId" value="@comment.Id" />
+                                    <button type="submit" class="text-[#cabeca] hover:text-[#4a3256] transition-colors p-1">
+                                        <ion-icon name="trash-outline" class="text-sm"></ion-icon>
+                                    </button>
+                                </form>
+                            }
                         </div>
                     </div>
                 </div>

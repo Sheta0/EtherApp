@@ -1,4 +1,5 @@
 ﻿using EtherApp.Controllers.Base;
+using EtherApp.Data.Helpers.Constants;
 using EtherApp.Data.Helpers.Enums;
 using EtherApp.Data.Models;
 using EtherApp.Data.Services;
@@ -8,7 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace EtherApp.Controllers
 {
-    [Authorize]
+    [Authorize(Roles = AppRoles.User)]
     public class StoriesController : BaseController
     {
         private readonly IStoriesService _storiesService;

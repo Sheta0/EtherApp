@@ -1,9 +1,12 @@
 ﻿using EtherApp.Controllers.Base;
+using EtherApp.Data.Helpers.Constants;
 using EtherApp.Data.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace EtherApp.Controllers
 {
+    [Authorize(Roles = AppRoles.User)]
     public class NotificationsController(INotificationService notificationService) : BaseController
     {
         public IActionResult Index()

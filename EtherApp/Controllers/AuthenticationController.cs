@@ -47,7 +47,13 @@ namespace EtherApp.Controllers
             var result = await _signInManager.PasswordSignInAsync(existingUser.UserName, loginVM.Password, loginVM.RememberMe, false);
 
             if (result.Succeeded)
+            {
+                if(User.IsInRole(AppRoles.Admin))
+                {
+                    return RedirectToAction("Index", "Admin");
+                }
                 return RedirectToAction("Index", "Home");
+            }
 
 
             ModelState.AddModelError(string.Empty, "Invalid Login Attempt");

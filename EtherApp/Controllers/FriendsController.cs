@@ -3,10 +3,12 @@ using EtherApp.Data.Helpers.Constants;
 using EtherApp.Data.Models;
 using EtherApp.Data.Services;
 using EtherApp.ViewModels.Friends;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace EtherApp.Controllers
 {
+    [Authorize(Roles = AppRoles.User)]
     public class FriendsController(IFriendsService friendsService, INotificationService notificationService) : BaseController
     {
         public async Task<IActionResult> Index()

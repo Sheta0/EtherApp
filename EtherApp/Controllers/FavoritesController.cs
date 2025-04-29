@@ -1,11 +1,12 @@
-﻿using EtherApp.Data.Services;
+﻿using EtherApp.Data.Helpers.Constants;
+using EtherApp.Data.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 
 namespace EtherApp.Controllers
 {
-    [Authorize]
+    [Authorize(Roles = AppRoles.User)]
     public class FavoritesController : Controller
     {
         private readonly IPostsService _postsService;
